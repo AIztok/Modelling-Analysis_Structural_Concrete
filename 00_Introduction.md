@@ -23,7 +23,8 @@ Post-processing is done via:
 
 The tools can be executed in Teddy, top left corner:
 
-![[Intro_Post-proc.png]]
+![Intro_Post-proc.png](Figures/Intro_Post-proc.png)
+
 
 # Additional
 
