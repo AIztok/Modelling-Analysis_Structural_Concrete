@@ -25,8 +25,6 @@ Possible modeling approaches for T-Beam will be shown:
 
 ## Approach-1-Centric-beam
 
-<iframe width="640" height="480" style="border:1px solid #eeeeee;" src="https://3dviewer.net/embed.html#model=https://raw.githubusercontent.com/AIztok/Modelling-Analysis_Structural_Concrete/main/Figures/T-beam_Example-Centric_Beam.ifc$camera=-3.83253,1.95435,4.75079,2.50000,-0.09412,1.25000,0.00000,1.00000,0.00000,45.00000$projectionmode=perspective$envsettings=fishermans_bastion,off$backgroundcolor=255,255,255,255$defaultcolor=200,200,200$defaultlinecolor=100,100,100$edgesettings=on,0,0,0,1"></iframe>
-
 This approach represents the typical case in modeling of T-Beams in Buildings.
 
 Used finite elements:
