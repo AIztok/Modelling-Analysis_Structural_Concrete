@@ -40,7 +40,7 @@ Only quad / plate elements visualized:
 ### Download File
 
 The Sofistik Teddy File can be downloaded here:
-[T-Beam Example Centric Beam](https://github.com/AIztok/TU-Wien_E212-2/blob/main/Modellbildung_Betonbau/SOFiSTiK-Files/T-beam_Example-Centric_Beam.dat)
+[T-Beam Example Centric Beam](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Centric_Beam.dat)
 
 
 ### What does the Software do?
