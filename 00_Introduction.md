@@ -33,15 +33,3 @@ There are a few videos on the topic of SOFiSTiK Text Editor possibilities, avail
 
 [YouTube - SOFiSTiK Text Editor](https://www.youtube.com/playlist?list=PL9q55sE0H9uPNl6kPXqu23LEmiqTVCsrQ)
 
-Part 1:
-
-[![Teddy-Part 1](https://www.youtube.com/embed/doAP5gmv6Gw?si=gsNzrbb_LZEXN8yV)](https://www.youtube.com/embed/doAP5gmv6Gw?si=gsNzrbb_LZEXN8yV)
-
-Part 2:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/-dmssd38WZI?si=vHXCRyD1-Xf7GBXI" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
-Part 3:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/naWzZJYTCpI?si=QmrSWoQL0uqGUet9" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-
