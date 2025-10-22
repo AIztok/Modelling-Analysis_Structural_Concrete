@@ -179,7 +179,7 @@ As visible in the visaulisation of the applied dead load (self weight) the doubl
 
 G<sub>beam</sub> = 0,6m x 0,3m x 25kN/m<sup>3</sup> = 4,5kN/m 
 
-![[T-Beam_DL.png]]
+![T-Beam_DL.png](Figures/T-Beam_DL.png)
 
 ### Linear calculation
 
@@ -220,10 +220,11 @@ Internal Forces of the T-Beam from dead load (Load case 1), which include alread
 - Shear forces V<sub>z</sub>
 - Normal force N (should be zero)
 
-![[T-Beam_Approach-1_Internal-forces.png]]
+![T-Beam_Approach-1_Internal-forces.png](Figures/T-Beam_Approach-1_Internal-forces.png)
 
 The numerical results of the addition plate and beam forces can be checked in the `Report`, here for the maximum value in the middle of the span:
-![[T-Beam_Approach-1_Table.png]]
+
+![T-Beam_Approach-1_Table.png](Figures/T-Beam_Approach-1_Table.png)
 
 
 ### Special case of T-beams on the Edges of Slabs
