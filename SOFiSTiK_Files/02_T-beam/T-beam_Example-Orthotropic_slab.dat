@@ -11,7 +11,7 @@ With !*! notes visible in the navigation panel can be defined
 Or with !#! chapters are written, also visible in the navigation panel
 !#!Chapter Kapitel
 
-<b>T-Beam Example: Centric Beam </b>
+<b>T-Beam Example: Orthotropic slab </b>
 
 </text>
 
@@ -28,6 +28,8 @@ echo full extr
 $----------------------------------------------------------------------------------
 !*! Concrete
 CONC NO 1  TYPE c 30N           titl 'Conc. C30/37'
+CONC NO 2  TYPE c 30N  gam 0    titl 'Conc. C30/37 Gam=0' ! weight of the plate zero
+
 $----------------------------------------------------------------------------------
 !*! Reinforcement
 STEE NO 101 TYPE b 550b titl 'Reinf. B550B'
@@ -45,21 +47,54 @@ $-------------------------------------------------------------------------------
 ctrl rest 2 ! Control to ensure the specifications of the previous AQUA are not overwritten
 
 $----------------------------------------------------------------------------------
-!*! Cross-section slab beam - "CENTRIC SLAB BEAM"
-SREC 1 H 0.8 B 0.3 HO 0.2 BO 2.5 MNO 1 MRF 101 SO 0.04[m] titl 'T-beam simple'
+!*! T-beam - with polygon points
+SECT NO  1  MNO  1 MRF 101 titl 'T-beam Poly'
+
+let#h  0.80[m] ! Variable for cross section height
+let#b  0.30[m] ! Variable for cross section width
+let#ho 0.20[m] ! Variable for top flange thickness
+let#bo 2.50[m] ! Variable for top flange width
+
+!*! Stress points - where the stresses will be calculated
+$ Top edge
+SPT OKL  Y -#bo/2 Z  0 MNO 1
+SPT OKM  Y  0.00  Z  0 MNO 1
+SPT OKR  Y +#bo/2 Z  0 MNO 1
+$ Bottom edge
+SPT UKL  Y -#b/2  Z #H MNO 1
+SPT UK   Y  0.00  Z #H MNO 1
+SPT UKR  Y +#b/2  Z #H MNO 1
+$ Polygon points
+POLY TYPE O   MNO  1
+    VERT   1  Y    0     Z   0       REFP OKL
+    VERT   2  Y    0     Z   0       REFP OKM
+    VERT   3  Y    0     Z   0       REFP OKR
+    VERT   4  Y    0     Z   #ho     REFP OKR
+    VERT   5  Y  #b/2    Z   #ho     REFP OKM
+    VERT  11  Y    0     Z   0       REFP UKR
+    VERT  12  Y    0     Z   0       REFP UK
+    VERT  13  Y    0     Z   0       REFP UKL
+    VERT  15  Y -#b/2    Z   #ho     REFP OKM
+    VERT  14  Y    0     Z   #ho     REFP OKL
+
+! Shear cuts
+CUT 'Csc' ZB 'S' ! shear cut through the centre of gravity
+CUT 'Web' ZB #ho+0.01 ! shear cut below the slab
+CUT 'Fla' YB #b/2+0.01 ZB +0.5 REFA 2 YE #b/2+0.01 ZE -0.05 REFE 2
 
 end
 
 +prog sofimshc urs:2
 head 'Model'
 $----------------------------------------------------------------------------------
-!*! System and mesh parameters
-ctrl mesh 2 $ 1 - bar model, 2 - surface model, 3 - solid model
-ctrl hmin 0.25 $[m] Size of finite elements
+!*! System und Netzparameter
+ctrl mesh 2 $ 1 - Stabmodell, 2 - Flächenmodell, 3 - Volumenmodell
+ctrl hmin 0.25 $[m] Größe Finite Elemente
 
 syst 3D gdir posz gdiv 10000
-$ gdir: global coordinate system. posz = Z-direction downward
-$ gdiv: group divisor = how many finite elements in a group (with 100, the elements of group 1 can be: 101, 102 up to 199)
+$ gdir: globales Koordinaten System. Posz = Z Richtung nach unten
+$ gdiv: Gruppendivisor = wie viele finite Elemente in einer Gruppe (Bei 100 sind die Elemente der Gruppe 1: 101, 102 bis 199 möglich)
+
 
 $----------------------------------------------------------------------------------
 !*! Structural points
@@ -70,42 +105,45 @@ spt no  x       y       z               fix
     12  5       2.5     0               -
     21  0       1.25    0               pp
     22  5       1.25    0               py
+    31  0       1.25    0.1/2+0.2/2     -
+    32  5       1.25    0.1/2+0.2/2     -
 
 $----------------------------------------------------------------------------------
 !*! Structural lines
-$ Outline of the slab
 sln 1 1  11 fix pz
 sln 2 11 12
 sln 3 12 2  fix pz
 sln 4 2  1
-$ Beams
+$ Beam
 sln 20 21 22 sno 1 grp 1
 
 $----------------------------------------------------------------------------------
 !*! Structural areas
 $ Slab
-sar 1 grp 1 mno 1 mrf 101 t 0.2[m] qref cent mctl regm
+sar 1 grp 2 mno 2 mrf 101 t 0.20[m] qref belo mctl regm drx 1 0 0
     sarb out nl 1,2,3,4
-! IMPORTANT: For centric slab beams:
-!       - Slab thickness (t) must be equal to HO in SREC in AQUA)
-!       - Slabs must be defined centric (qref cent) so that the centroid axes of beam and slab coincide
+
+! Important:
+!       - the plate/quads should be defined with a differenz group number as beams to adress the mexplicitly in ase (reduction of stiffness)
+!       - the local x axis must correspond with the beam direction - can be rotated by using drx/dry/drz
 
 end
 
 
+
 +prog sofiload urs:3
-head 'Lasten'
+head 'Loads'
 
 $ Deadload
 lc 1 facd 1.0 titl 'EGW'
 $ Additional permanent load
 lc 2 titl '5kN/m2'
-    quad grp 1 type pg p 5
+    quad grp 2 type pg p 5
 
 end
 
 +prog ase urs:4
-head 'Berechnung'
+head 'Calculation'
 $----------------------------------------------------------------------------------
 !*! Scope of output
 echo full extr
@@ -118,6 +156,7 @@ syst prob line $ linear analysis
 $----------------------------------------------------------------------------------
 !*! Element groups
 grp - $ activate all element groups
+grp2 2 quex 0.001 qemx 0.001 $ reduce the axial and bending stiffness of the slab in local x direction
 
 $----------------------------------------------------------------------------------
 !*! Load cases
@@ -128,7 +167,6 @@ lc 201 facd 1.35 $ Self-weight cannot be copied; it must be defined explicitly i
 lcc 2 fact 1.35 $ Load case 2 is copied and factored
 
 end
-
 
 +PROG WING urs:7
 HEAD 'Model Visual Representation'
@@ -170,9 +208,6 @@ LC   NO 1 ; BEAM TYPE VZ UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
 LC   NO 1 ; BEAM TYPE N UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
 
 END
-
-
-
 
 
 

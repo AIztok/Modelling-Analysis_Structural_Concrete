@@ -11,7 +11,7 @@ With !*! notes visible in the navigation panel can be defined
 Or with !#! chapters are written, also visible in the navigation panel
 !#!Chapter Kapitel
 
-<b>T-Beam Example: Centric Beam </b>
+<b>T-Beam Example: Excentric Beam </b>
 
 </text>
 
@@ -45,8 +45,11 @@ $-------------------------------------------------------------------------------
 ctrl rest 2 ! Control to ensure the specifications of the previous AQUA are not overwritten
 
 $----------------------------------------------------------------------------------
-!*! Cross-section slab beam - "CENTRIC SLAB BEAM"
-SREC 1 H 0.8 B 0.3 HO 0.2 BO 2.5 MNO 1 MRF 101 SO 0.04[m] titl 'T-beam simple'
+!*! Cross-section on rectangle - used in the FE-Model
+SREC 1 H 0.8-0.2 B 0.3 MNO 1 MRF 101 SO 0.04[m] titl 'B/H=30/60cm'
+
+!*! Cross-section T-Beam - used for design element (module Decreator)
+SREC 2 H 0.8 B 0.3 HO 0.2 BO 2.5 MNO 1 MRF 101 SO 0.04[m] titl 'T-beam simple'
 
 end
 
@@ -70,6 +73,8 @@ spt no  x       y       z               fix
     12  5       2.5     0               -
     21  0       1.25    0               pp
     22  5       1.25    0               py
+    31  0       1.25    0.2/2+0.6/2     -
+    32  5       1.25    0.2/2+0.6/2     -
 
 $----------------------------------------------------------------------------------
 !*! Structural lines
@@ -78,17 +83,16 @@ sln 1 1  11 fix pz
 sln 2 11 12
 sln 3 12 2  fix pz
 sln 4 2  1
-$ Beams
-sln 20 21 22 sno 1 grp 1
+$ Beam
+sln 20 21 22
+sln 30 31 32 sno 1 grp 3
+    slns 3 fix kf reft >sln ref 20 $ fix coupling of the beam with the slab
 
 $----------------------------------------------------------------------------------
 !*! Structural areas
 $ Slab
 sar 1 grp 1 mno 1 mrf 101 t 0.2[m] qref cent mctl regm
     sarb out nl 1,2,3,4
-! IMPORTANT: For centric slab beams:
-!       - Slab thickness (t) must be equal to HO in SREC in AQUA)
-!       - Slabs must be defined centric (qref cent) so that the centroid axes of beam and slab coincide
 
 end
 
@@ -129,6 +133,23 @@ lcc 2 fact 1.35 $ Load case 2 is copied and factored
 
 end
 
+!*!Label Design Elements
++prog decreator urs:10
+head 'Integration'
+
+echo dsln full
+echo forc full
+
+dsln no 1 ncs 2 fref sc hdiv 0.1
+ dgeo sln 20
+ dslc ref strt,end 0.0 typm hfac
+ dslc ref strt,end 0.9*0.8 typm shea
+ dslc ref mid typm sect
+ dsel box
+
+lc all
+
+end
 
 +PROG WING urs:7
 HEAD 'Model Visual Representation'
@@ -156,7 +177,7 @@ END
 
 
 +PROG WING urs:9
-HEAD 'Results'
+HEAD 'Results beam'
 
 SIZE TYPE URS SC 0 MARG NO SPLI '3*1'
 
@@ -172,7 +193,21 @@ LC   NO 1 ; BEAM TYPE N UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
 END
 
 
++PROG WING urs:11
+HEAD 'Results Design beam'
 
+SIZE TYPE URS SC 0 MARG NO SPLI '3*1'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+DSGN TYPE LINE DTYP DEFA
+BEAM TYPE DSGN ROPT P STAT ALL STAL ALL OFFZ MIDD
+
+LC   NO 1 ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP DSLN FILL NO REPR DLIN
+LC   NO 1 ; BEAM TYPE VZ UNIT DEFA SCHH 0.5 STYP DSLN FILL NO REPR DLIN
+LC   NO 1 ; BEAM TYPE N UNIT DEFA SCHH 0.5 STYP DSLN FILL NO REPR DLIN
+
+END
 
 
 
