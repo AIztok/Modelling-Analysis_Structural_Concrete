@@ -1,26 +1,4 @@
-## Table of content
-
-[General](#General)
-
-[Download File](#Download%20File)
-
-[What does the Software do?](#What%20does%20the%20Software%20do?)
-
-[Materials](#Materials)
-
-[Cross sections](#Cross%20sections)
-
-[System](#System)
-
-[Actions / Loads](#Actions%20/%20Loads)
-
-[Linear calculation](#Linear%20calculation)
-
-[Results and Discussion](#Results%20and%20discussion)
-
-[Special cases](#Special%20cases)
-
-[Pros & Cons](#Pros%20&%20Cons)
+# T-Beam Correction Beam
 
 ## General
 
@@ -50,9 +28,9 @@ The software performs in the background the following operations:
 
 Graphic representation of the procedure (©SOFiSTiK):
 
-![[T-Beam_Approach-4_Correction-beam_01.png]]
+![T-Beam_Approach-4_Correction-beam_01.png](Figures/T-Beam_Approach-4_Correction-beam_01.png)
 
-![[T-Beam_Approach-4_Correction-beam_02.png]]
+![T-Beam_Approach-4_Correction-beam_02.png](Figures/T-Beam_Approach-4_Correction-beam_02.png)
  
 ## Materials
 
@@ -137,7 +115,7 @@ Input of the static system for the automatic meshing using the `SOFiMSHC` Module
 
 In the Figure below the Structural Node and Structural Line Numbers are shown:
 
-![[T-Beam_Approach-3_Visual_SPT&SLN.png]]
+![T-Beam_Approach-3_Visual_SPT&SLN.png](Figures/T-Beam_Approach-3_Visual_SPT&SLN.png)
 
 SOFiMSHC Code Block:
 
@@ -215,7 +193,7 @@ end
 
 Only the T-Beam has a weight:
 
-![[T-Beam_Approach-3_DL.png]]
+![T-Beam_Approach-3_DL.png](Figures/T-Beam_Approach-3_DL.png)
 
 ## Linear calculation
 
@@ -292,12 +270,12 @@ LC   NO 1 ; BEAM TYPE N UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
 END 
 ```
 
-![[T-Beam_Approach-4_internal-f_beam.png]]
+![T-Beam_Approach-4_internal-f_beam.png](Figures/T-Beam_Approach-4_internal-f_beam.png)
 
 As we see, the results in the beam don't corespond good with the other approaches, the bending moment is larger (60,7 kNm > 53 kNm) and there is a compression force in the beam.
 The reason is, that if the normal forces and bending moment of the slab is checked, the shear lag effect is large, e.g. the normal force is not constant over the width but there are large deviation. Wheres in a correction beam the shear lag can't be considered (constant axial stiffness over the width), therefore the internal forces in the correction beam are larges as those in the slab.
 
-![[T-Beam_Approach-4_Internal-f_slab.png]]
+![T-Beam_Approach-4_internal-f_slab.png](Figures/T-Beam_Approach-4_internal-f_slab.png)
 
 The reason is the span to width ratio of the model (5 m / 2,5 m = 2 / 1). If this ratio is increase to 15 m / 2,5 m = 6 /1 (see in the chapter [[#System]]) to uncomment the 15 m SPTs. Then this effects gets much smaller and the results are very near to other approaches.
 
