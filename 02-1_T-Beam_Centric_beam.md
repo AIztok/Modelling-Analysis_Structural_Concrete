@@ -4,7 +4,7 @@
 
 [Download File](#Download%20File)
 
-[What does the Software do?](#What%20does%20the%20Software%20do?)
+[What does the Software do?](#What-does%20the%20Software%20do?)
 
 [Materials](#Materials)
 
