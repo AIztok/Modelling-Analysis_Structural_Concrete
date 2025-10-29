@@ -30,15 +30,15 @@ Used finite elements:
 - Correction beam - dummy beam made by the software as a beam element on the position of the slab with negative weight and negative E-Modulus
 
 Only beam elements visualized:
-![[T-Beam_Approach-3_Visual_Beam.png]]
+![T-Beam_Approach-3_Visual_Beam.png](Figures/T-Beam_Approach-3_Visual_Beam.png)
 
 Only quad / plate elements visualized:
-![[T-Beam_Approach-3_Visual_slab.png]]
+![T-Beam_Approach-3_Visual_slab.png](Figures/T-Beam_Approach-3_Visual_slab.png)
 
 ## Download File
 
 The Sofistik Teddy File can be downloaded here:
-[T-Beam Example Correction Beam](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Correction_Beam.dat)
+[T-Beam Example Correction Beam](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Correction_beam.dat)
 
 ## What does the Software do?
 
