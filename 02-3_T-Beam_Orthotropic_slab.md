@@ -1,26 +1,4 @@
-## Table of content
-
-[General](#General)
-
-[Download File](#Download%20File)
-
-[What does the Software do?](#What%20does%20the%20Software%20do?)
-
-[Materials](#Materials)
-
-[Cross sections](#Cross%20sections)
-
-[System](#System)
-
-[Actions / Loads](#Actions%20/%20Loads)
-
-[Linear calculation](#Linear%20calculation)
-
-[Results and Discussion](#Results%20and%20discussion)
-
-[Special cases](#Special%20cases)
-
-[Pros & Cons](#Pros%20&%20Cons)
+# T-Beam Orthotropic Slab
 
 ## General
 
@@ -39,7 +17,7 @@ Only quad / plate elements visualized:
 ## Download File
 
 The Sofistik Teddy File can be downloaded here:
-[T-Beam Example Centric Beam](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Excentric_Beam.dat)
+[T-Beam Example Orthotropic Slab](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Orthotropic_slab.dat)
 
 ## What does the Software do?
 
