@@ -190,10 +190,11 @@ lc 2 titl '5kN/m2'
 end    
 ```
 
+As visible in the visaulisation of the applied dead load (self weight) the double area of the plate was already substracted from the beam dead load:
 
-Only the T-Beam has a weight:
+G<sub>beam</sub> = 0,6m x 0,3m x 25kN/m<sup>3</sup> = 4,5kN/m 
 
-![T-Beam_Approach-3_DL.png](Figures/T-Beam_Approach-3_DL.png)
+![T-Beam_DL.png](Figures/T-Beam_DL.png)
 
 ## Linear calculation
 
