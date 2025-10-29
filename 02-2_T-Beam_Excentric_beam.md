@@ -12,7 +12,7 @@ Plate (Quad) elements with excentricly coupled beam:
 ## Download File
 
 The Sofistik Teddy File can be downloaded here:
-[T-Beam Example Centric Beam](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Excentric_Beam.dat)
+[T-Beam Example Excentric Beam](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/02_T-beam/T-beam_Example-Excentric_Beam.dat)
 
 ## What does the Software do?
 
