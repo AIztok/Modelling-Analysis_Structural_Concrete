@@ -1,26 +1,4 @@
-## Table of content
-
-[General](#General)
-
-[Download File](#Download%20File)
-
-[What does the Software do?](#What-does%20the%20Software%20do?)
-
-[Materials](#Materials)
-
-[Cross sections](#Cross%20sections)
-
-[System](#System)
-
-[Actions / Loads](#Actions%20/%20Loads)
-
-[Linear calculation](#Linear%20calculation)
-
-[Results and Discussion](#Results%20and%20discussion)
-
-[Special cases](#Special%20cases)
-
-[Pros & Cons](#Pros%20&%20Cons)
+# T-Beam Centric Beam
 
 ## General
 
