@@ -1,0 +1,211 @@
++prog template urs:1
+head 'General Info'
+
+<text>
+Comments are written with exclamation mark (!) or Dollar-sign ($)
+! this is a comment and is not read by the program
+$ this as well
+
+With !*! notes visible in the navigation panel can be defined
+!*! Jump label
+Or with !#! chapters are written, also visible in the navigation panel
+!#!Chapter Kapitel
+
+<b>Example: Design single span </b>
+
+</text>
+
+end
+
++prog aqua urs:5
+head 'Materials'
+$----------------------------------------------------------------------------------
+!*! Specification of the standard
+NORM OEN en199X-200X unit 0 !
+$----------------------------------------------------------------------------------
+!*! Scope of output
+echo full extr
+$----------------------------------------------------------------------------------
+!*! Concrete
+CONC NO 1  TYPE c 30N           titl 'Conc. C30/37'
+
+$----------------------------------------------------------------------------------
+!*! Reinforcement
+STEE NO 101 TYPE b 550b titl 'Reinf. B550B'
+
+end
+
++prog aqua urs:6
+head 'Cross sections'
+$----------------------------------------------------------------------------------
+!*! Units for input and output (i = input; o = output)
+page unii 0 unio 0
+
+$----------------------------------------------------------------------------------
+!*! Control
+ctrl rest 2 ! Control to ensure the specifications of the previous AQUA are not overwritten
+
+$----------------------------------------------------------------------------------
+!*! T-beam
+SREC 1 H 0.8 B 0.3 HO 0.2 BO 2.5 MNO 1 MRF 101 SO 0.04[m] titl 'T-beam simple'
+
+end
+
++prog sofimshc urs:2
+head 'Model'
+$----------------------------------------------------------------------------------
+!*! System and mesh parameters
+ctrl mesh 1 $ 1 - Stabmodell, 2 - Flächenmodell, 3 - Volumenmodell
+ctrl hmin 0.25 $[m] Größe Finite Elemente
+
+syst 3D gdir posz gdiv 100
+$ gdir: globales Koordinaten System. Posz = Z Richtung nach unten
+$ gdiv: Gruppendivisor = wie viele finite Elemente in einer Gruppe (Bei 100 sind die Elemente der Gruppe 1: 101, 102 bis 199 möglich)
+
+
+$----------------------------------------------------------------------------------
+!*! Structural points
+spt no  x       y       z               fix
+    21  0       0       0               ppmx   $ support in X,Y,Z and Rotation around X-Axis
+    22  12      0       0               xpmx   $ support in all direction except X-Axis and Rotation around X-Axis
+
+$----------------------------------------------------------------------------------
+!*! Structural lines
+$ Beam
+sln 20 21 22 sno 1 grp 1 styp 'b.e'
+
+end
+
++prog sofiload urs:4
+head 'Actions'
+echo full extr
+! Permanent actions
+    ! Dead load
+    ACT G_1
+
+end
+
++prog sofiload urs:3
+head 'Loads'
+
+$ Deadload
+lc 1 facd 1.0 type G_1 titl 'EGW'
+
+end
+
++prog ase urs:10
+head 'Calculation'
+$----------------------------------------------------------------------------------
+!*! Scope of output
+echo full extr
+page lano 1 $ Output in 0 = German / 1 = English
+
+$----------------------------------------------------------------------------------
+!*! Analysis parameters
+syst prob line $ linear analysis
+
+$----------------------------------------------------------------------------------
+!*! Element groups
+grp - $ activate all element groups
+
+$----------------------------------------------------------------------------------
+!*! Load cases
+lc all $ calculate all load cases defined in SOFiLOAD
+
+end
+
++prog maxima urs:11
+head 'Results combination'
+! Output control
+echo chck val full
+
+COMB 10 desi BASE -  $ GZT Combination
+    ACT G_1 ! Dead load
+
+let#lf 2120
+SUPP ETYP TYPE   LC   FROM  TITL EXTR=MAMI COMB=10
+      'beam' N   #lf+1
+      'beam' VY  #lf+3
+      'beam' VZ  #lf+5
+      'beam' MT  #lf+7
+      'beam' MY  #lf+9
+      'beam' MZ  #lf+11
+
+end
+
++prog aqb urs:12
+head 'GZT Bemessung Stäbe'
+echo full extr
+
+page lano 0
+
+rein mod sect rmod accu lcr 1
+
+beam - ! alle beams to design
+
+! Loadcases
+lc (d) ! all design load cases
+! design parameters
+desi ulti ksv uld ksb uld $ using material safety factors
+
+end
+
+
++PROG WING urs:7
+HEAD 'Model Visual Representation'
+
+SIZE TYPE URS SC 0 MARG NO
+
+VIEW TYPE DIRE X 0.864813 Y -0.422351 Z 0.271511 AXIS POSZ ROTA 0
+
+STRU NUME GPT FILL NO REPR DTXT UNIT DEFA SCHH 0.5
+AND
+STRU NUME GLN FILL NO REPR DTXT UNIT DEFA SCHH 0.5
+AND
+STRU NUME SECT NUMN BEAM FILL NO REPR DSTR UNIT DEFA SCHH 0.5
+
+END
+
+
++PROG WING urs:8
+HEAD 'Loads'
+
+LC   NO 1 ; LOAD TYPE ALL UNIT DEFA SCHH 0.5 SING VECT FILL NO REPR DREP ETYP ALL GTYP ELEM
+
+END
+
+
++PROG WING urs:9
+HEAD 'Results'
+
+SIZE TYPE URS SC 0 MARG NO SPLI '3*1'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+DSGN TYPE LINE DTYP DEFA
+BEAM TYPE DSGN ROPT P STAT ALL STAL ALL OFFZ MIDD
+
+LC   NO 1 ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+LC   NO 1 ; BEAM TYPE VZ UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+LC   NO 1 ; BEAM TYPE N UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+
+LC   NO 2129 ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+LC   NO 2129 ; BEAM TYPE VZ UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+LC   NO 2129 ; BEAM TYPE N UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+END
+
++PROG WING urs:13
+HEAD 'Bewehrung'
+
+SIZE TYPE URS SC 0 MARG NO SPLI '1*1'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+DSGN TYPE LINE DTYP DEFA
+BEAM TYPE DSGN ROPT P STAT ALL STAL ALL OFFZ MIDD
+
+LC  DESI 1 ; BEAM TYPE AS1 UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+END
