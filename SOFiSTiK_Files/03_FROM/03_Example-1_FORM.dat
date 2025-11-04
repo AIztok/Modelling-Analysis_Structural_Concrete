@@ -1,0 +1,92 @@
+PROG RELY urs:1
+HEAD Reliability Analysis
+page lano 1 ! output in english
+!
+! ----------------------------------------------------------
+! Definition of the random variables
+! ----------------------------------------------------------
+!
+! *********************************
+! Yield strength of steel acc. JCSS
+! *********************************
+!
+!   type:     Normal distribution
+!   mean:     610 N/mm²
+!   std.dev.: 30 N/mm²
+!
+    VAR 'rv_sFy' TYPE NORM PTYP MOME  P1 610 P2 30.
+!
+! *********************************
+! Dead load loading
+! *********************************
+!
+!   type:     Normal distribution
+!   mean:     1
+!   std.dev.: 0.04
+!
+    VAR 'rv_g'   TYPE NORM PTYP MOME  P1 1.   P2 0.04
+!
+! ----------------------------------------------------------
+! Definition of the limit-state function
+! ----------------------------------------------------------
+!
+! The limit-state function is defined implicitly through a
+! finite-element model of the beam. The finite element model
+! is specified in file '03_Example-1_FORM_Model.fem':
+!
+    PROJ dat '03_Example-1_FORM_Model.fem'
+!
+! The value of the limit-state function is stored in the CDB
+! of finite element project '03_Example-1_FORM_Model' under the
+! name 'rel_fun':
+!
+    FUNC rel_fun
+!
+! The following statement enforeces that the computed value
+! of the limit-state value is printed after each model
+! evaluation.
+!
+    OUTP LSFR YES PRUV YES PRXV YES
+!
+! ----------------------------------------------------------
+! Perform the reliability analysis
+! ----------------------------------------------------------
+!
+! ************************
+! FORM
+! ************************
+!
+! Perform the reliability analysis by means of FORM (First
+! Order Reliability Method):
+!
+    FORM
+!
+! The method is run using the default parameters.
+!
+! ************************
+! Line sampling
+! ************************
+!
+! Use line sampling to perform the reliability analysis:
+!
+    LS NSPL 5 SPNT CDB
+    !LS NSPL 100 SPNT CDB  ! recommended
+!
+! The design-point computed previously by means of FORM is
+! used (i.e., it is retrieved from the data base).
+! 100 line-searches are performed to approximate the
+! probability of failure.
+!
+! Specifying a SEED value enforces a constant set of random numbers,
+!    which supports the 'exact' reproduction of results.
+! ATTENTION: While this option is useful for comparison purposes, its use
+!    is DISCOURAGED for real engineering analyses!
+!
+$CTRL SEED 1
+
+END
+
+
+
+
+
