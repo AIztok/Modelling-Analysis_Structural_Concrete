@@ -100,7 +100,10 @@ The reliability index is larger as required (3,800 for 50 years or 4,300 for 100
 
 ## Code
 
-Dateien gehostet auf Google Colab können immer eingesehen werden. Berechnen funktioniert nur wenn auf Google Account eingeloggt:
+The iPython Jupyter Notebook is hosted on Google Colab, which enables to run the file without having Python and Jupyter installed locally.
+With a google account the code can be ran and modified, without only the code can be seen.
+
+In the Notebook a simple FORM function is shown and applied on our case.
 
 [Jupyter Notebook](https://colab.research.google.com/drive/1_lKY5DuN-rlrEP4K98_0-QDRjW0dsHAn?usp=sharing)
 
