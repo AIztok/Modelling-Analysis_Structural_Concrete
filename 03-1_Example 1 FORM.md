@@ -20,6 +20,12 @@ Finite Element Model:
 
 ![03-1_FORM_Modell.png](Figures/03-1_FORM_Modell.png)
 
+The limit state function is just:
+LSF = As,provided - As,required
+
+In the Sofistik approach the As,required is calculated using a FE Model and Bending design.
+In the Python code the limit state function is done by hand (bending design).
+
 # Beam Design acc. EN 1990/1991/1992 with partial safety factors
 
 ## SOFiSTiK File
@@ -61,6 +67,10 @@ The values are based on the JCSS probabilistic model code:
 https://www.jcss-lc.org/jcss-probabilistic-model-code/
 
 ## SOFiSTiK File
+
+To calculate FORM in Sofistik, two files are necessary, one is the FORM File (1st below) where the Parameters for the reliability analysis are defined and the name of the finite element file is named (2nd file).
+In the 2nd file the FE Model is created, where the stochastic variables are not defined deterministically but with variables (defined in the 1st file).
+At the end we access the database of the FE Model and get out the required reinforcement which is substracted from the provided (user defined value), and this forms the limit state function. 
 
 The SOFiSTiK File of the FORM Method can be downloaded here:
 [03_Example-1_FORM.dat](https://github.com/AIztok/Modelling-Analysis_Structural_Concrete/blob/main/SOFiSTiK_Files/03_FROM/03_Example-1_FORM.dat)
