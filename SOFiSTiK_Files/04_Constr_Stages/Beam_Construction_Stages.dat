@@ -1,0 +1,387 @@
++prog template urs:1
+head 'General Info'
+
+<text>
+Comments are written with exclamation mark (!) or Dollar-sign ($)
+! this is a comment and is not read by the program
+$ this as well
+
+With !*! notes visible in the navigation panel can be defined
+!*! Jump label
+Or with !#! chapters are written, also visible in the navigation panel
+!#!Chapter Kapitel
+
+<b>Example Beam change of static system and cross section in construction phases </b>
+
+</text>
+
+end
+
++prog aqua urs:5
+head 'Materials'
+$----------------------------------------------------------------------------------
+!*! Specification of the standard
+NORM OEN en199X-200X unit 0 !
+$----------------------------------------------------------------------------------
+!*! Scope of output
+echo full extr
+$----------------------------------------------------------------------------------
+!*! Concrete
+CONC NO 1  TYPE c 30N           titl 'Conc. C30/37 Prefab beam'
+CONC NO 2  TYPE c 30N           titl 'Conc. C30/37 In-situ'
+
+$----------------------------------------------------------------------------------
+!*! Reinforcement
+STEE NO 101 TYPE b 550b titl 'Reinf. B550B'
+
+end
+
++prog aqua urs:6
+head 'Cross sections'
+$----------------------------------------------------------------------------------
+!*! Units for input and output (i = input; o = output)
+page unii 0 unio 0
+
+$----------------------------------------------------------------------------------
+!*! Control
+ctrl rest 2 ! Control to ensure the specifications of the previous AQUA are not overwritten
+
+$----------------------------------------------------------------------------------
+!*! T-beam - with polygon points
+SECT NO  1  MNO  1 MRF 101 titl 'T-beam Poly'
+
+sto#h  0.80[m] ! Variable for cross section height
+let#b  0.20[m] ! Variable for cross section width
+let#ho 0.12[m] ! Variable for top flange thickness
+let#bo 1.00[m] ! Variable for top flange width
+
+cs 1
+!*! Stress points - where the stresses will be calculated
+$ Top edge
+SPT OKL  Y -#bo/2 Z  0.15 MNO 1
+SPT OKM  Y  0.00  Z  0.15 MNO 1
+SPT OKR  Y +#bo/2 Z  0.15 MNO 1
+$ Bottom edge
+SPT UKL  Y -#b/2  Z #H MNO 1
+SPT UK   Y  0.00  Z #H MNO 1
+SPT UKR  Y +#b/2  Z #H MNO 1
+$ Polygon points
+POLY TYPE O   MNO  1
+    VERT   1  Y    0     Z   0       REFP OKL
+    VERT   2  Y    0     Z   0       REFP OKM
+    VERT   3  Y    0     Z   0       REFP OKR
+    VERT   4  Y    0     Z   #ho     REFP OKR
+    VERT   5  Y  #b/2    Z   #ho     REFP OKM
+    VERT  11  Y    0     Z   0       REFP UKR
+    VERT  12  Y    0     Z   0       REFP UK
+    VERT  13  Y    0     Z   0       REFP UKL
+    VERT  15  Y -#b/2    Z   #ho     REFP OKM
+    VERT  14  Y    0     Z   #ho     REFP OKL
+
+! Shear cuts
+CUT 'Csc' ZB 'S' ! shear cut through the centre of gravity
+CUT 'Web' ZB 0.15+#ho+0.01 ! shear cut below the slab
+CUT 'Fla' YB #b/2+0.01 ZB +0.5 REFA 2 YE #b/2+0.01 ZE -0.05 REFE 2
+
+$ In-situ concrete
+cs 20
+POLY TYPE O   MNO 2
+    VERT  21  Y  #bo/2    Z   0
+    VERT  22  Y  #bo/2    Z   0.15  $REFP OKM
+    VERT  23  Y -#bo/2    Z   0.15  $REFP OKR
+    VERT  24  Y -#bo/2    Z   0     $REFP OKR
+
+
+
+end
+
++prog sofimshc urs:2
+head 'Model'
+$----------------------------------------------------------------------------------
+!*! System und Netzparameter
+ctrl mesh 1 $ 1 - Stabmodell, 2 - Flächenmodell, 3 - Volumenmodell
+ctrl hmin 0.5 $[m] Größe Finite Elemente
+
+syst 3D gdir posz gdiv 10000
+$ gdir: globales Koordinaten System. Posz = Z Richtung nach unten
+$ gdiv: Gruppendivisor = wie viele finite Elemente in einer Gruppe (Bei 100 sind die Elemente der Gruppe 1: 101, 102 bis 199 möglich)
+
+
+$----------------------------------------------------------------------------------
+!*! Structural points
+spt no  x       y    z               fix
+    21  0       0    0               ppmx
+    22  5       0    0               -
+    23  10      0    0               xpmx
+
+$----------------------------------------------------------------------------------
+!*! Spring - intermediate support for prefab beam
+spt -22 $ for adapting existing element, minus sign before the number
+    spts - grp 2 type czz cp 1e7
+
+$----------------------------------------------------------------------------------
+!*! Structural lines
+$ Beam
+sln 20 21 23 sno 1 grp 1 styp 'b.e'
+
+end
+
++prog sofiload urs:3
+head 'Loads'
+
+lc 10 type none titl 'Perm. load'
+beam grp 1 type pg pa 10 $ beam line load of 10 kN/m acting in gravitation direction
+
+end
+
+
++PROG CSM urs:bri.csm1
+HEAD 'Construction Stage Manager'
+CTRL CREP RCRE $ more exact creep analysis including backward creeping via AQB
+CTRL RELZ AUTO $
+CTRL EMOD AUTO $
+
+$ prefab beam positioned, no dead load
+CS   9 type B   titl 'Prefab '
+$ dead load prefab beam
+CS  10 type G_1 titl 'DL prefab'
+$ dead load in-situ concrete
+CS  19 type G_1 titl 'DL in-situ'
+$ the in-situ concrete is stiff, no loads applied in this CS
+CS  20 type B titl 'Full cross section active'
+$ Creep & shrinkage
+CS  25 type C_1   titl 'C&S 14 days'           T 14 RH 80 TEMP 20 NCRE 3
+$ Middle support removed
+CS  30 type B titl 'Middle support removed
+$ Permanent load activated on single spann
+CS  40 type G_2 titl 'Perm. load'
+$ Creep & shrinkage
+CS  45 type C_2   titl 'C&S 70 years'           T 70*365 RH 80 TEMP 20 NCRE 5
+
+
+GRP  NO ICS1 ICSD  T0   ATIL SITU   PHIF=0.0 $ definition group-activation stage ICS1
+     -     9   10  28   -    -       $ default for all groups not named below explicitly
+     1     9   10  28   -    -1      $ beam activated at stage 9, dead load at 10, load of insitu part 20-1=19
+     2     9   10  28   29   -       $ spring - middle support activated in 9, deactivated in 29 - before CS 30
+
+LC    NO  TYPE ICS1 FACT   ATIL   $ activation of additional loads - prestress is activated automatically!
+      10  G_2   40   1.0   -
+
+
+$ calculate precamber of the beam to be straight at state 49 (last creep step)
+CAMB 49
+
+END
+
++apply $(NAME)_csm.dat
+
+
+
++PROG RESULTS urs:4
+HEAD 'Results Cross section Middle'
+
+SIZE TYPE "-URS" SPLI "1x1"
+PICT SC DEFA W DEFA H DEFA SPLT   NO
+$
+let#cs 10,19,20,27,30,40,49 $ construction stage
+
+loop#i cs $ loop as number of times as there are indexes in the vector #cs, #i is an internal counter
+    LC   NO 7000+#cs(#i)
+    LC   ENO 10011 X 0  $ middle of the beam
+    TXTP SHOW SIGN OVLP AMAX EXTR  YES
+    CROS TYPE  SIG ETYP BEAM RTYP NONL REPR DLIN FILL   NO SCHH  0.5
+endloop
+
+END
+
+
++PROG WING urs:7
+HEAD 'Internal forces - My'
+
+SIZE TYPE URS SC 5.00000E+11  MARG NO SPLI '2*1'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+DEFO TYPE NO EXPO 0 SMOV CURR
+SELE NUMB 0
+DSGN TYPE LINE DTYP DEFA
+
+
+move del; move 2. 5. unit pr alig left schh 0.5; move del;
+
+let#cs 10,19,20,27,30,40,49 $ construction stage
+
+$ Accumulated internal forces
+    move del; text 'Sum My: DL prefab'
+    LC   NO 4000+#cs(0) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My: DL prefab'
+    LC   NO 5000+#cs(0) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+$ Accumulated internal forces
+    move del; text 'Sum My: DL In-situ'
+    LC   NO 4000+#cs(1) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My:DL In-situ'
+    LC   NO 5000+#cs(1) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+$ Accumulated internal forces
+    move del; text 'Sum My: Insitu stiff'
+    LC   NO 4000+#cs(2) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My: Insitu stiff'
+    LC   NO 5000+#cs(2) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 14d'
+    LC   NO 4000+#cs(3) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My: C&S 14d'
+    LC   NO 5000+#cs(3) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+$ Accumulated internal forces
+    move del; text 'Sum My: Support removed'
+    LC   NO 4000+#cs(4) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My: Support removed'
+    LC   NO 5000+#cs(4) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+$ Accumulated internal forces
+    move del; text 'Sum My: Perm. load'
+    LC   NO 4000+#cs(5) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My: Perm. load'
+    LC   NO 5000+#cs(5) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 70 years'
+    LC   NO 4000+#cs(6) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+$ difference to previous
+    move del; text 'Difference My: C&S 70 years'
+    LC   NO 5000+#cs(6) DESI ; BEAM TYPE MY UNIT DEFA SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+END
+
++PROG WING urs:8
+HEAD 'Verformung'
+
+SIZE TYPE URS SC 5.00000E+11  MARG NO SPLI '2*1'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+DEFO TYPE NO EXPO 0 SMOV CURR
+SELE NUMB 0
+DSGN TYPE LINE DTYP DEFA
+
+
+move del; move 2. 5. unit pr alig left schh 0.5; move del;
+
+let#cs 9,10,19,20,27,30,40,45,46,47,48,49 $ construction stage
+
+$ Accumulated internal forces
+    move del; text 'Sum uz: Precamber prefab beam'
+    LC   NO 4000+#cs(0)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference uz: Precamber prefab beam'
+    LC   NO 5000+#cs(0)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ Accumulated internal forces
+    move del; text 'Sum uz: DL prefab beam'
+    LC   NO 4000+#cs(1)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference uz: DL prefab beam'
+    LC   NO 5000+#cs(1)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+
+$ Accumulated internal forces
+    move del; text 'Sum My: DL In-situ'
+    LC   NO 4000+#cs(2)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My:DL In-situ'
+    LC   NO 5000+#cs(2)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+
+$ Accumulated internal forces
+    move del; text 'Sum My: Insitu stiff'
+    LC   NO 4000+#cs(3)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: Insitu stiff'
+    LC   NO 5000+#cs(3)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 14d'
+    LC   NO 4000+#cs(4)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: C&S 14d'
+    LC   NO 5000+#cs(4)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+
+$ Accumulated internal forces
+    move del; text 'Sum My: Support removed'
+    LC   NO 4000+#cs(5)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: Support removed'
+    LC   NO 5000+#cs(5)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+
+$ Accumulated internal forces
+    move del; text 'Sum My: Perm. load'
+    LC   NO 4000+#cs(6)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: Perm. load'
+    LC   NO 5000+#cs(6)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 70 years Step 1'
+    LC   NO 4000+#cs(7)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: C&S 70 years Step 1'
+    LC   NO 5000+#cs(7)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 70 years Step 2'
+    LC   NO 4000+#cs(8)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: C&S 70 years Step 2'
+    LC   NO 5000+#cs(8)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 70 years  Step 3'
+    LC   NO 4000+#cs(9)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: C&S 70 years Step 3'
+    LC   NO 5000+#cs(9)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 70 years  Step 4'
+    LC   NO 4000+#cs(10)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: C&S 70 years Step 4'
+    LC   NO 5000+#cs(10)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ Accumulated internal forces
+    move del; text 'Sum My: C&S 70 years  Step 5'
+    LC   NO 4000+#cs(11)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+$ difference to previous
+    move del; text 'Difference My: C&S 70 years Step 5'
+    LC   NO 5000+#cs(11)  ; NODE TYPE UZ UNIT DEFA SCHH 0.5 FILL NO REPR DVEC
+
+END
+
+
+
+
