@@ -8,7 +8,9 @@ Cast-at-once:
 ![05-1_Building_cast-at-once.png](Figures/Gif_Github_Building_cast-at-once.gif)
 
 Construction stages:
+
 ![05-1_Building_csm.png](Figures/Gif_Github_Building_csm.gif)
+
 ## SOFiSTiK File
 
 The SOFiSTiK File can be downloaded here:
