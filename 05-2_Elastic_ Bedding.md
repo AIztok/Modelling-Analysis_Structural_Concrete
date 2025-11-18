@@ -5,11 +5,11 @@ In this example the difference between considering the elastic bedding of a foun
 
 Constant bedding:
 
-![[05_constant_bedding.png]]
+![05_constant_bedding.png](Figures/05_constant_bedding.png)
 
 Variable bedding:
 
-![[05_variable_bedding.png]]
+![05_variable_bedding.png](Figures/05_variable_bedding.png)
 
 
 ## SOFiSTiK File
