@@ -1,0 +1,220 @@
++prog template urs:1
+head 'General Info'
+
+<text>
+Comments are written with exclamation mark (!) or Dollar-sign ($)
+! this is a comment and is not read by the program
+$ this as well
+
+With !*! notes visible in the navigation panel can be defined
+!*! Jump label
+Or with !#! chapters are written, also visible in the navigation panel
+!#!Chapter Kapitel
+
+<b>7 floor Building: comparison internal forces cast at once system and with construction stage analysis </b>
+
+</text>
+
+end
+
++prog aqua urs:5
+head 'Materials'
+$----------------------------------------------------------------------------------
+!*! Specification of the standard
+NORM OEN en199X-200X unit 0 !
+$----------------------------------------------------------------------------------
+!*! Scope of output
+echo full extr
+$----------------------------------------------------------------------------------
+!*! Concrete
+CONC NO 1  TYPE c 25N           titl 'Conc. C25/30 beams'
+CONC NO 2  TYPE c 25N           titl 'Conc. C25/30 quads'
+$----------------------------------------------------------------------------------
+!*! Reinforcement
+STEE NO 101 TYPE b 550b titl 'Reinf. B550B'
+
+end
+
++prog aqua urs:6
+head 'Cross sections'
+$----------------------------------------------------------------------------------
+!*! Units for input and output (i = input; o = output)
+page unii 0 unio 0
+
+$----------------------------------------------------------------------------------
+!*! Control
+ctrl rest 2 ! Control to ensure the specifications of the previous AQUA are not overwritten
+
+$----------------------------------------------------------------------------------
+!*! Cross-section rectangle - Column
+SREC 1 H 0.3 B 0.3 MNO 1 MRF 101 SO 0.04[m] titl 'B/H=30/30cm'
+
+end
+
++prog sofimshc urs:2
+head 'Model'
+$----------------------------------------------------------------------------------
+!*! System and mesh parameters
+ctrl mesh 2 $ 1 - bar model, 2 - surface model, 3 - solid model
+ctrl hmin 0.5 $[m] Size of finite elements
+
+syst 3D gdir posz gdiv 10000
+$ gdir: global coordinate system. posz = Z-direction downward
+$ gdiv: group divisor = how many finite elements in a group (with 100, the elements of group 1 can be: 101, 102 up to 199)
+
+!*! Variables
+$ Height levels of the slabs
+sto#h 0,3,6,9,12,15,18,21,24
+
+$----------------------------------------------------------------------------------
+loop#i h $ loop over the number of values in #h
+    !*! Structural points
+    spt no          x       y       z               fix
+    $ Slab
+        1+100*#i    0       0      -#h(#i)          -
+        2+100*#i    14      0      -#h(#i)          -
+        3+100*#i    14      14     -#h(#i)          -
+        4+100*#i    0       14     -#h(#i)          -
+    $ Columns
+       11+100*#i    1       1      -#h(#i)          -
+       12+100*#i    7       1      -#h(#i)          -
+       13+100*#i   13       1      -#h(#i)          -
+       21+100*#i    1       7      -#h(#i)          -
+       23+100*#i   13       7      -#h(#i)          -
+       31+100*#i    1      13      -#h(#i)          -
+       32+100*#i    7      13      -#h(#i)          -
+       33+100*#i   13      13      -#h(#i)          -
+    $ Void
+       51+100*#i    5       5      -#h(#i)          -
+       52+100*#i    9       5      -#h(#i)          -
+       53+100*#i    9       9.15   -#h(#i)          -
+       54+100*#i    5       9.15   -#h(#i)          -
+
+    $$----------------------------------------------------------------------------------
+    if #i>0 $ first loop #i = 0
+    !*! Structural lines
+    $ Columns
+         sln 11+100*#i npa 11+100*(#i-1) npe 11+100*#i sno 1 grp 10+10*(#i-1)
+         sln 12+100*#i npa 12+100*(#i-1) npe 12+100*#i sno 1 grp 10+10*(#i-1)
+         sln 13+100*#i npa 13+100*(#i-1) npe 13+100*#i sno 1 grp 10+10*(#i-1)
+         sln 21+100*#i npa 21+100*(#i-1) npe 21+100*#i sno 1 grp 10+10*(#i-1)
+         sln 23+100*#i npa 23+100*(#i-1) npe 23+100*#i sno 1 grp 10+10*(#i-1)
+         sln 31+100*#i npa 31+100*(#i-1) npe 31+100*#i sno 1 grp 10+10*(#i-1)
+         sln 32+100*#i npa 32+100*(#i-1) npe 32+100*#i sno 1 grp 10+10*(#i-1)
+         sln 33+100*#i npa 33+100*(#i-1) npe 33+100*#i sno 1 grp 10+10*(#i-1)
+    endif
+    $----------------------------------------------------------------------------------
+    !*! Structural areas
+    $ Slab
+    if #i<1 $ fundation plate - thicker
+        sar 1 grp 1 mno 2 mrf 101 t 0.75[m] qref belo mctl regm
+            sarb out na 1 2
+            sarb out na 2 3
+            sarb out na 3 4
+            sarb out na 4 1
+    endif
+
+
+    if #i>0 $ first loop #i = 0
+        sar 1+100*#i grp 9+10*#i mno 2 mrf 101 t 0.25[m] qref cent mctl regm
+            sarb out na 1+100*#i 2+100*#i
+            sarb out na 2+100*#i 3+100*#i
+            sarb out na 3+100*#i 4+100*#i
+            sarb out na 4+100*#i 1+100*#i
+
+        $ Void at the core
+        sar void
+            sarb out na 51+100*#i 52+100*#i
+            sarb out na 52+100*#i 53+100*#i
+            sarb out na 53+100*#i 54+100*#i
+            sarb out na 54+100*#i 51+100*#i
+    $ Core
+        sar 51+100*#i grp 10+10*(#i-1) mno 2 mrf 101 t 0.30[m] qref cent mctl regm
+            sarb out na 51+100*(#i-1) 52+100*(#i-1)
+            sarb out na 52+100*(#i-1) 52+100*(#i)
+            sarb out na 52+100*(#i) 51+100*(#i)
+            sarb out na 51+100*(#i) 51+100*(#i-1)
+        sar 52+100*#i grp 10+10*(#i-1) mno 2 mrf 101 t 0.30[m] qref cent mctl regm
+            sarb out na 52+100*(#i-1) 53+100*(#i-1)
+            sarb out na 53+100*(#i-1) 53+100*(#i)
+            sarb out na 53+100*(#i) 52+100*(#i)
+            sarb out na 52+100*(#i) 52+100*(#i-1)
+        sar 53+100*#i grp 10+10*(#i-1) mno 2 mrf 101 t 0.30[m] qref cent mctl regm
+            sarb out na 51+100*(#i-1) 54+100*(#i-1)
+            sarb out na 54+100*(#i-1) 54+100*(#i)
+            sarb out na 54+100*(#i) 51+100*(#i)
+            sarb out na 51+100*(#i) 51+100*(#i-1)
+
+    endif
+
+endloop
+
+$ Bedding applied to the first structural area
+$ by using - (minus) before the number of an existing
+$ structural element, it can be adapted
+sar -1 cb 30000 ct 20000
+
+end
+
++prog ase urs:3
+head 'Dead load'
+
+LC 1 FACD 1.0 TITL 'Deadload'
+
+end
+
++PROG CSM urs:bri.csm1
+HEAD 'Construction Stage Manager'
+CTRL CREP RCRE $ more exact creep analysis including backward creeping via AQB
+CTRL RELZ AUTO $
+CTRL EMOD AUTO $
+
+CS   9 type B   titl 'Fundation slab '
+CS  10 type G_1 titl 'DL fundation slab'
+
+loop#i h
+    CS  19+20*#i type B   titl 'Columns&Core active'
+    CS  20+20*#i type G_1 titl 'Columns&Core DL'
+    CS  29+20*#i type B   titl 'Slab active'
+    CS  30+20*#i type G_1 titl 'Slab DL'
+    CS  35+20*#i type C_1 titl 'C&S 14 days'           T 14 RH 80 TEMP 20 NCRE 1
+endloop
+
+$ Creep & shrinkage
+CS  205 type C_2   titl 'C&S 50 years'           T 50*365 RH 80 TEMP 20 NCRE 5
+
+GRP  NO         ICS1      ICSD       T0   ATIL SITU   PHIF=0.0 $ definition group-activation stage ICS1
+     -          9         10         28   -    -       $ default for all groups not named below explicitly
+     1          9         10         28   -    -       $ fundation slab
+loop#j h
+     10+10*#j   19+20*#j   20+20*#j   3   -    -       $ column&core
+     19+10*#j   29+20*#j   30+20*#j   3   -    -       $ slab
+endloop
+
+$ calculate precamber of the beam to be straight at state 209 (last creep step)
+CAMB 205+4
+
+END
+
++apply $(NAME)_csm.dat
+
+
++PROG WING urs:4
+HEAD 'Normal forces in columns'
+
+SIZE TYPE URS SC 0 MARG NO SPLI '1*2'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+move del; move 2. 5. unit pr alig left schh 0.5; move del;
+
+    move del; text 'Nx: cast at once'
+    LC 1 ; BEAM TYPE N UNIT -1002.750 SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+
+
+    move del; text 'Nx: Construction stages'
+    LC   NO 4209 ; BEAM TYPE N UNIT -1002.750 SCHH 0.5 STYP BEAM FILL NO REPR DLIN
+END
+
+
+
