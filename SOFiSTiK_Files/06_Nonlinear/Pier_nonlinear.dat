@@ -1,0 +1,348 @@
++prog template urs:1
+head 'General Info'
+
+<text>
+Comments are written with exclamation mark (!) or Dollar-sign ($)
+! this is a comment and is not read by the program
+$ this as well
+
+With !*! notes visible in the navigation panel can be defined
+!*! Jump label
+Or with !#! chapters are written, also visible in the navigation panel
+!#!Chapter Kapitel
+
+<b>Bridge pier analysed using TH1, TH2, Imperfections and material non-linearity </b>
+
+</text>
+
+end
+
+!#!Chapter Materials and cross sections
+
++prog aqua urs:5
+head 'Materials'
+$----------------------------------------------------------------------------------
+!*! Specification of the standard
+NORM OEN en199X-200X-BRIDGE cat B   unit 0 !
+$----------------------------------------------------------------------------------
+!*! Scope of output
+echo full extr
+$----------------------------------------------------------------------------------
+!*! Concrete
+CONC NO 1  TYPE c 35N           titl 'Conc. C35/45'
+$----------------------------------------------------------------------------------
+!*! Reinforcement
+STEE NO 101 TYPE b 550b titl 'Reinf. B550B'
+
+end
+
++prog aqua urs:6
+head 'Cross sections'
+$----------------------------------------------------------------------------------
+!*! Units for input and output (i = input; o = output)
+page unii 0 unio 0
+
+$----------------------------------------------------------------------------------
+!*! Control
+ctrl rest 2 ! Control to ensure the specifications of the previous AQUA are not overwritten
+
+
+$----------------------------------------------------------------------------------
+!*! Cross sections
+sect 1 mno 1 mrf 101 titl 'CS bottom'
+poly O $ outer edge
+    vert no y               z
+    1       5               3
+    2       5              -3
+    3      -5              -3
+    4      -5               3
+poly o mno 0 $ inner edge - void
+    vert no y               z
+    11      4.25            2.25
+    12      4.25           -2.25
+    13     -4.25           -2.25
+    14     -4.25            2.25
+$ Reinforcement                  ! with the double $ sign the line can be split and is read as one
+lrf 1              yb -0.07 ye -0.07 zb -0.07 ze +0.07 refa 1 refe 2 $$
+                   lay m1 mrf 101 as 50 d 36 a 1 tors pass
+lrf 2              yb -0.07 ye +0.07 zb +0.07 ze +0.07 refa 2 refe 3 $$
+                   lay m1 mrf 101 as 50 d 36 a 1 tors pass
+lrf 3              yb +0.07 ye +0.07 zb +0.07 ze -0.07 refa 3 refe 4  $$
+                   lay m1 mrf 101 as 50 d 36 a 1 tors pass
+lrf 4              yb +0.07 ye -0.07 zb -0.07 ze -0.07 refa 4 refe 1 $$
+                   lay m1 mrf 101 as 50 d 36 a 1 tors pass
+$Shear cut
+cut 'Cmc'              zb 'S'         lay m1 $ in center of gravity
+
+sect 2 mno 1 mrf 101 titl 'CS top'
+    poly O $ outer edge
+         vert no y               z
+         1       3               3
+         2       3              -3
+         3      -3              -3
+         4      -3               3
+    poly O mno 0 $ void
+         vert no y               z
+         11      2.5            2.5
+         12      2.5           -2.5
+         13     -2.5           -2.5
+         14     -2.5            2.5
+    $ Reinforcement                  ! with the double $ sign the line can be split and is read as one
+    lrf 1              yb -0.07 ye -0.07 zb -0.07 ze +0.07 refa 1 refe 2 $$
+                       lay m1 mrf 101 as 50 d 36 a 1 tors pass
+    lrf 2              yb -0.07 ye +0.07 zb +0.07 ze +0.07 refa 2 refe 3 $$
+                       lay m1 mrf 101 as 50 d 36 a 1 tors pass
+    lrf 3              yb +0.07 ye +0.07 zb +0.07 ze -0.07 refa 3 refe 4  $$
+                       lay m1 mrf 101 as 50 d 36 a 1 tors pass
+    lrf 4              yb +0.07 ye -0.07 zb -0.07 ze -0.07 refa 4 refe 1 $$
+                       lay m1 mrf 101 as 50 d 36 a 1 tors pass
+    $ Shear cut
+    cut 'Cmc'              zb 'S'         lay m1   $ in center of gravity
+
+end
+
+!#!Chapter Model
+
++prog sofimshc urs:2
+head 'Model'
+$----------------------------------------------------------------------------------
+!*! System and mesh parameters
+ctrl mesh 2 $ 1 - bar model, 2 - surface model, 3 - solid model
+ctrl hmin 1 $[m] Size of finite elements
+
+syst 3D gdir posz gdiv 10000
+$ gdir: global coordinate system. posz = Z-direction downward
+$ gdiv: group divisor = how many finite elements in a group (with 100, the elements of group 1 can be: 101, 102 up to 199)
+
+!*! Structural points
+spt no 1 x 0 y 0 z 0 fix pp  $ bottom node fixed in x,y,z and with rotation springs
+        spts - type c cm 1e8 dx 1 0 0 grp 11   $rotations spring x
+        spts - type c cm 1e8 dx 0 1 0 grp 12   $rotations spring y
+        spts - type c cm 1e8 dx 0 0 1 grp 13   $rotations spring z
+
+spt no 2 x 0 y 0 z -80 $ top node
+
+!*! Structural lines
+sln 1 1 2 sno 1.2 grp 1 styp 'b.e' $ start cross section #1 and end cross section #2
+
+end
+
++prog aqua urs:3
+head 'CS interpolation'
+
+inte 0  $ interpolation of the cross section
+        $ the software creates multiple new cross section between #1 and #2
+
+end
+
+!#!Chapter Loads
+
++prog sofiload urs:4
+head 'Loads'
+
+lc 101 type none titl 'Loads on the top node'
+    node 2 type pg p1 20000
+    node 2 type pxx p1 -2000
+
+lc 201 type none
+BEAM grp 1 TYPE UZS PA 0 PE 1/200 $ imperfection applied on the beams grp 1
+
+$ Note: dead load is not consider to enable easier check with handcalculation
+
+end
+
+!#!Chapter Calculation
+
++prog ase urs:12
+head 'Calc. Linear'
+
+syst prob line $ linear calculation
+
+lc 101 titl 'Linear - TH1'
+
+end
+
++prog ase urs:13
+head 'Calc. TH2'
+
+syst prob th2 $ 2nd order theory
+
+lc 102 titl 'TH2'
+    lcc 101 $ copy the load 101
+
+end
+
++prog ase urs:10
+head 'Calc. TH2 + imperf'
+
+syst prob th2 $ 2nd order theory
+
+lc 103 titl 'TH2 + imperf'
+    lcc 101 $ copy the load 101
+    lcc 201 $ imperfection
+
+end
+
++prog ase urs:7
+head 'Calc. TH2 + mat nonl'
+
+syst prob th2 $ 2nd order theory
+
+NSTR S1 KSV CALD KSB CALD $ material nonlinearity (stress-strain curve with mean values divided by safety factor)
+
+LC 104 TITL 'TH2_NSTR_S1'
+    lcc 101 $ copy the load 101
+
+end
+
++prog ase urs:8
+head 'Calc. TH2 + mat nonl + imperf'
+
+syst prob th2 $ 2nd order theory
+
+NSTR S1 KSV CALD KSB CALD $ material nonlinearity (stress-strain curve with mean values divided by safety factor)
+
+LC 105 TITL 'TH2_NSTR_S1 + imperf'
+    lcc 101 $ copy the load 101
+    lcc 201 $ imperfection
+
+end
+
++prog ase urs:11
+head 'Calc. TH2 + mat nonl + imperf (obli)'
+$ this calculation serves only as check of the imperfection if it is applied directly in ase
+syst prob th2 $ 2nd order theory
+
+obli sx -1/200  $ imperfection applied in ASE as horizontal displacement of nodes
+                $ with OBLI the nodes can be displaced as ration of total height (minus sign)
+                $ or a absolute value (positive sign) or a deformed shape from a load case
+                $ (e.g. a buckling shape) can be chosen and scaled
+
+NSTR S1 KSV CALD KSB CALD $ material nonlinearity (stress-strain curve with mean values divided by safety factor)
+
+LC 106 TITL 'TH2_NSTR_S1 + imperf'
+    LCC 101 $ copy the load 101
+
+end
+
+!#!Chapter Results
+
++PROG WING urs:14
+HEAD 'Loads'
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+SIZE TYPE URS SC 0 MARG NO
+
+LC   NO 101 ; LOAD TYPE ALL UNIT DEFA SCHH 0.5 FILL NO REPR DVEC ETYP NODE GTYP ELEM
+
+END
+
++PROG WING urs:9
+HEAD 'Results'
+
+move del; move 95. 5. unit pr alig righ schh 0.35; move del
+
+size 4 sc 0 spli 1x2
+
+VIEW TYPE DIRE X 0 Y -1 Z 0 AXIS POSZ ROTA 0
+
+                move del;
+                        text 'Bending moment My'
+                        text 'Lc101: TH1'
+                        LC   NO 101 ; BEAM TYPE MY UNIT -2 SCHH 0.7 STYP BEAM REPR DLIN
+
+                move del;
+                        text 'Displacement X'
+                        text 'Lc101: TH1'
+                        LC   NO 101 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
+$----------------------------------------------------------------------
+                move del;
+                        text 'Bending moment My'
+                        text 'Lc102: TH2'
+                        LC   NO 102 ; BEAM TYPE MY UNIT -2 SCHH 0.7 STYP BEAM REPR DLIN
+
+                move del;
+                        text 'Displacement X'
+                        text 'Lc102: TH2'
+                        text '(H/200=400mm not included in shown displ.)'
+                        LC   NO 102 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
+
+$----------------------------------------------------------------------
+                move del;
+                        text 'Bending moment My'
+                        text 'Lc103: TH2 + imperf'
+                        LC   NO 103 ; BEAM TYPE MY UNIT -2 SCHH 0.7 STYP BEAM REPR DLIN
+
+                move del;
+                        text 'Displacement X'
+                        text 'Lc103: TH2 + imperf'
+                        LC   NO 103 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
+
+$----------------------------------------------------------------------
+size 4 sc 0 spli 1x3
+                move del;
+                        text 'Bending moment My'
+                        text 'Lc104: TH2 + mat nonl'
+                        LC   NO 104 ; BEAM TYPE MY UNIT -2 SCHH 0.7 STYP BEAM REPR DLIN
+
+                move del;
+                        text 'Displacement X'
+                        text 'Lc104: TH2 + mat nonl'
+                        text '(H/200=400mm not included in shown displ.)'
+                        LC   NO 104 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
+
+                move del;
+                        text 'Bending stiffnes EIy cracked as % uncracked'
+                        text 'Lc104: TH2 + mat nonl'
+                        LC   NO 104 DESI 103 ; BEAM TYPE EIY UNIT DEFA SCHH 0.7 STYP BEAM REPR DLIN
+
+$----------------------------------------------------------------------
+size 4 sc 0 spli 1x3
+                move del;
+                        text 'Bending moment My'
+                        text 'Lc105: TH2 + mat nonl +imperf(Sofiload)'
+                        LC   NO 105 ; BEAM TYPE MY UNIT -2 SCHH 0.7 STYP BEAM REPR DLIN
+
+                move del;
+                        text 'Displacement X'
+                        text 'Lc105: TH2 + mat nonl +imperf'
+                        text '(H/200=400mm not included in shown displ.)'
+                        LC   NO 105 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
+
+                move del;
+                        text 'Bending stiffnes EIy cracked as % uncracked'
+                        text 'Lc105: TH2 + mat nonl +imperf'
+                        LC   NO 105 DESI 104 ; BEAM TYPE EIY UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
+
+
+size 4 sc 0 spli 1x2
+                move del;
+                        text 'Reinf. steel stresses'
+                        text 'Lc105: TH2 + mat nonl +imperf'
+                        LC   NO 105 DESI 104 ; BEAM TYPE SZRF UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
+
+
+                move del;
+                        text 'Concrete stresses'
+                        text 'Lc105: TH2 + mat nonl +imperf'
+                        LC   NO 105 DESI 104 ; BEAM TYPE SIGD UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
+
+$----------------------------------------------------------------------
+                move del;
+                        text 'Bending moment My'
+                        text 'Lc106: TH2 + mat nonl +imperf(ASE OBLI)'
+                        LC   NO 106 ; BEAM TYPE MY UNIT -2 SCHH 0.7 STYP BEAM REPR DLIN
+
+                move del;
+                        text 'Displacement X'
+                        text 'Lc106: TH2 + mat nonl +imperf(ASE OBLI)'
+                        text '(H/200=400mm is included in the shown displ.)'
+                        LC   NO 106 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
+
+END
+
+
+
+
+
