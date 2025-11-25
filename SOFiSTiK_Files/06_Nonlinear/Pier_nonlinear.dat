@@ -295,7 +295,7 @@ size 4 sc 0 spli 1x3
                 move del;
                         text 'Bending stiffnes EIy cracked as % uncracked'
                         text 'Lc104: TH2 + mat nonl'
-                        LC   NO 104 DESI 103 ; BEAM TYPE EIY UNIT DEFA SCHH 0.7 STYP BEAM REPR DLIN
+                        LC   NO 104 DESI 104 ; BEAM TYPE EIY UNIT DEFA SCHH 0.7 STYP BEAM REPR DLIN
 
 $----------------------------------------------------------------------
 size 4 sc 0 spli 1x3
@@ -313,7 +313,7 @@ size 4 sc 0 spli 1x3
                 move del;
                         text 'Bending stiffnes EIy cracked as % uncracked'
                         text 'Lc105: TH2 + mat nonl +imperf'
-                        LC   NO 105 DESI 104 ; BEAM TYPE EIY UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
+                        LC   NO 105 DESI 105 ; BEAM TYPE EIY UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
 
 
 size 4 sc 0 spli 1x2
@@ -326,7 +326,7 @@ size 4 sc 0 spli 1x2
                 move del;
                         text 'Concrete stresses'
                         text 'Lc105: TH2 + mat nonl +imperf'
-                        LC   NO 105 DESI 104 ; BEAM TYPE SIGD UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
+                        LC   NO 105 DESI 105 ; BEAM TYPE SIGD UNIT DEFA SCHH 0.3 STYP BEAM REPR DLIN
 
 $----------------------------------------------------------------------
                 move del;
@@ -341,6 +341,7 @@ $----------------------------------------------------------------------
                         LC   NO 106 ; NODE TYPE UX UNIT -2 SCHH 0.7 REPR DVEC
 
 END
+
 
 
 
